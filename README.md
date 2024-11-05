@@ -153,6 +153,3 @@ Auth-Tutorial/
 ## License
 
 This project is licensed under the MIT License.
-```
-
-This README should give users a clear overview of the project's setup, installation, usage, and functionality.
