@@ -37,7 +37,7 @@ function SignUpPage() {
 					/>
 					<Input
 						icon={Mail}
-						type="text"
+						type="email"
 						placeholder="Email Address"
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
