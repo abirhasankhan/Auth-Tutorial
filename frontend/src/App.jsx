@@ -6,7 +6,10 @@ import EmailVerifactionpgae from "./pages/EmailVerifactionpgae";
 import {Toaster} from "react-hot-toast"
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";
-import DashboardPage from "./pages/DashboardPage";
+import ProfilePage from "./pages/ProfilePage";
+import LoadingSpinner from "./components/loadingSpinner";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 
 // protect routes that need authentication
@@ -45,9 +48,10 @@ function App() {
 		checkAuth();
 	}, [checkAuth]);
 
-	console.log("isAuthenticated", isAuthenticated);
-	console.log("user", user);
-	
+	// console.log("isAuthenticated", isAuthenticated);
+	// console.log("user", user);
+
+	if(isChecking) return <LoadingSpinner />
 	
 
 
@@ -77,13 +81,13 @@ function App() {
 					delay={2}
 				/>
 				<Routes>
-					<Route 
-						path="/" 
+					<Route
+						path="/"
 						element={
 							<ProtectedRoute>
-								<DashboardPage />
+								<ProfilePage />
 							</ProtectedRoute>
-						} 
+						}
 					/>
 					<Route
 						path="/signup"
@@ -102,10 +106,27 @@ function App() {
 						}
 					/>
 					<Route
+						path="/forgot-password"
+						element={
+							<RedirectAuthenticatedUser>
+								<ForgotPasswordPage />
+							</RedirectAuthenticatedUser>
+						}
+					/>
+					<Route
+						path="/reset-password/:token"
+						element={
+							<RedirectAuthenticatedUser>
+								<ResetPasswordPage />
+							</RedirectAuthenticatedUser>
+						}
+					/>
+					<Route
 						path="/verify-email"
 						element={<EmailVerifactionpgae />}
 					/>
 				</Routes>
+
 				<Toaster />
 			</div>
 		</>

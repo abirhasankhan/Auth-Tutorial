@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import  {User}  from "../models/user.model.js";
+import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { generateVerificationToken } from "../utils/generateVerificationToken.js";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
@@ -15,17 +15,17 @@ export const home = async (req, res) => {
 
 export const signup = async (req, res) => {
 
-    const {email, password, name} = req.body;
+    const { email, password, name } = req.body;
 
     try {
 
-        if(!email || !password || !name) {
+        if (!email || !password || !name) {
             throw new Error("All fields are required");
         }
 
-        const userAlreadyExists = await User.findOne({email});
+        const userAlreadyExists = await User.findOne({ email });
 
-        if(userAlreadyExists) {
+        if (userAlreadyExists) {
             throw new Error("User already exists");
         }
 
@@ -49,24 +49,24 @@ export const signup = async (req, res) => {
         await sendVerificationEmail(user.email, verificationToken);
 
         res.status(201).json({
-            success: true, 
+            success: true,
             message: "User created successfully",
             user: {
                 ...user._doc,
                 password: undefined
-            }   
+            }
         });
-        
+
     } catch (error) {
         console.log("Error: ", error);
-        res.status(400).json({success: false, message: error.message});
-        
+        res.status(400).json({ success: false, message: error.message });
+
     }
 }
 
 export const verifyEmail = async (req, res) => {
 
-    const {code} = req.body;
+    const { code } = req.body;
 
     try {
 
@@ -77,9 +77,9 @@ export const verifyEmail = async (req, res) => {
             }
         });
 
-        if(!user) {
-            
-            return res.status(400).json({success: false, message: "Invalid verification code"});
+        if (!user) {
+
+            return res.status(400).json({ success: false, message: "Invalid verification code" });
         }
 
         user.isVerified = true;
@@ -91,39 +91,39 @@ export const verifyEmail = async (req, res) => {
         await sendWelcomeEmail(user.email, user.name);
 
         res.status(200).json({
-            success: true, 
+            success: true,
             message: "Welcome email verified successfully",
             user: {
                 ...user._doc,
                 password: undefined
             }
         });
-        
+
     } catch (error) {
         console.log("Error in verifying email: ", error);
-        res.status(500).json({success: false, message: error.message});
-        
+        res.status(500).json({ success: false, message: error.message });
+
     }
 }
 
 export const login = async (req, res) => {
 
-    const {email, password} = req.body;
+    const { email, password } = req.body;
 
     try {
 
-        const user = await User.findOne({email});
+        const user = await User.findOne({ email });
 
-        if(!user) {
+        if (!user) {
 
-            return res.status(404).json({success: false, message: "User not found"});
+            return res.status(404).json({ success: false, message: "User not found" });
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
-        if(!isPasswordValid) {
+        if (!isPasswordValid) {
 
-            return res.status(400).json({success: false, message: "Invalid password"});
+            return res.status(400).json({ success: false, message: "Invalid password" });
         }
 
         generateTokenAndSetCookie(res, user._id);
@@ -133,7 +133,7 @@ export const login = async (req, res) => {
         await user.save();
 
         res.status(200).json({
-            success: true, 
+            success: true,
             message: "Logged in successfully",
             user: {
                 ...user._doc,
@@ -143,27 +143,27 @@ export const login = async (req, res) => {
 
     } catch (error) {
         console.log("Error in login: ", error);
-        res.status(400).json({success: false, message: error.message});
+        res.status(400).json({ success: false, message: error.message });
     }
 }
 
 export const logout = async (req, res) => {
 
     res.clearCookie("token");
-    res.status(200).json({success: true, message: "Logged out successfully"});
+    res.status(200).json({ success: true, message: "Logged out successfully" });
 }
 
 export const forgotPassword = async (req, res) => {
 
-    const {email} = req.body;
+    const { email } = req.body;
 
     try {
 
-        const user = await User.findOne({email});
+        const user = await User.findOne({ email });
 
-        if(!user) {
+        if (!user) {
 
-            return res.status(404).json({success: false, message: "User not found"});
+            return res.status(404).json({ success: false, message: "User not found" });
         }
 
         // Generate password reset token
@@ -180,14 +180,14 @@ export const forgotPassword = async (req, res) => {
         await sendResetPasswordEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetPasswordToken}`);
 
         res.status(200).json({
-            success: true, 
+            success: true,
             message: "Password reset link sent to your email",
         });
-        
+
     } catch (error) {
         console.log("Error in forgot password: ", error);
-        res.status(400).json({success: false, message: error.message});
-        
+        res.status(400).json({ success: false, message: error.message });
+
     }
 }
 
@@ -195,8 +195,8 @@ export const resetPassword = async (req, res) => {
 
     try {
 
-        const {token} = req.params;
-        const {password} = req.body;
+        const { token } = req.params;
+        const { password } = req.body;
 
         const user = await User.findOne({
             resetPasswordToken: token,
@@ -205,9 +205,9 @@ export const resetPassword = async (req, res) => {
             }
         });
 
-        if(!user) {
+        if (!user) {
 
-            return res.status(400).json({success: false, message: "Invalid or expired token"});
+            return res.status(400).json({ success: false, message: "Invalid or expired token" });
         }
 
         //update password
@@ -223,29 +223,29 @@ export const resetPassword = async (req, res) => {
         await sendResetSuccessEmail(user.email);
 
         res.status(200).json({
-            success: true, 
+            success: true,
             message: "Password reset successfully",
         });
-        
+
     } catch (error) {
         console.log("Error in reset password: ", error);
-        res.status(400).json({success: false, message: error.message});
-        
+        res.status(400).json({ success: false, message: error.message });
+
     }
 }
 
 export const checkAuth = async (req, res) => {
 
     try {
-        
+
         const user = await User.findById(req.userId);
 
-        if(!user) {
-            return res.status(404).json({success: false, message: "User not found"});
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
         }
 
         res.status(200).json({
-            success: true, 
+            success: true,
             message: "User found",
             user: {
                 ...user._doc,
@@ -256,8 +256,8 @@ export const checkAuth = async (req, res) => {
     } catch (error) {
 
         console.log("Error in check auth: ", error);
-        res.status(400).json({success: false, message: error.message});
-        
-        
+        res.status(400).json({ success: false, message: error.message });
+
+
     }
 }
